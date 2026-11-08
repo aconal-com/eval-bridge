@@ -8,10 +8,14 @@
   `import` call crashed with `FileNotFoundError` on a pip-installed copy.
   Verified: `pip install` of the 0.5.0 wheel could not load a fixture; the same
   probe passes after the move.
-- Fix the PR-comment step in `.github/workflows/ci.yml`: it read `junit.xml`
-  while pytest writes `junit-<python-version>.xml`, so the action silently
-  warned and exited without ever posting. Point it at the real file and run it
-  on a single matrix leg (3.12) so one comment lands per PR.
+- Fix the PR-comment path end to end. `ci.yml` read `junit.xml` while pytest
+  writes `junit-<python-version>.xml`, so the action silently warned and never
+  posted; it now points at the real file and runs on one matrix leg (3.12).
+  The action's own `actions/checkout@v4` then `git clean -ffdx`'d the junit
+  artifact away before `dorny/test-reporter` could read it (this is the first
+  PR the repo has had, so the PR-only path had never run) — the redundant
+  checkout and `pip install -e .` are gone, which also makes the action usable
+  in non-Python repos.
 - Fix `entrypoint.sh` fallback branch: `xml.etree.ElementTree` was imported as
   `sys`, so the "no suites found" path raised `AttributeError` on `sys.exit`.
 - Drop `temperature: 0.0` from the LLM-judge request body. Current reasoning
