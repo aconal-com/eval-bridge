@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# pull-requests: write is required by the PR-comment step below; checks: write
+# by dorny/test-reporter. Without an explicit block the default token is
+# read-only and `gh pr comment` fails with "Resource not accessible by
+# integration".
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   test:
     runs-on: ubuntu-latest

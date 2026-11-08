@@ -53,10 +53,16 @@ gh_post_comment() {
   if [[ -z "${pr}" && -n "${GITHUB_EVENT_PATH:-}" && -f "${GITHUB_EVENT_PATH}" ]]; then
     pr=$(python3 -c 'import json, os; e = json.load(open(os.environ["GITHUB_EVENT_PATH"])); print((e.get("pull_request") or e.get("issue") or {}).get("number", ""))')
   fi
+  # The comment is advisory: warn instead of failing the job. Fork PRs run
+  # with a read-only token that even a permissions block cannot elevate.
   if [[ -n "${pr}" && -n "${repo}" ]]; then
-    gh pr comment "${pr}" --repo "${repo}" --body "${BODY}"
+    if ! gh pr comment "${pr}" --repo "${repo}" --body "${BODY}"; then
+      echo "::warning::eval-bridge-pr-comment: could not post the comment (token needs pull-requests: write; fork PRs always get read-only)"
+    fi
   else
-    gh pr comment --body "${BODY}"
+    if ! gh pr comment --body "${BODY}"; then
+      echo "::warning::eval-bridge-pr-comment: could not post the comment (could not resolve the PR number)"
+    fi
   fi
 }
 

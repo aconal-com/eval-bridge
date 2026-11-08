@@ -18,7 +18,11 @@
   in non-Python repos. Finally, `gh pr comment` inferred the PR from the git
   branch and failed on the detached HEAD of a PR checkout ("could not
   determine current branch"); the entrypoint now reads the PR number from the
-  event payload.
+  event payload. `ci.yml` grants `pull-requests: write` / `checks: write` —
+  the default read-only token made the comment fail with "Resource not
+  accessible by integration" — the README documents the permission for
+  external consumers, and comment posting is now best-effort (warn, never
+  fail the job) since fork PRs always run with a read-only token.
 - Fix `entrypoint.sh` fallback branch: `xml.etree.ElementTree` was imported as
   `sys`, so the "no suites found" path raised `AttributeError` on `sys.exit`.
 - Drop `temperature: 0.0` from the LLM-judge request body. Current reasoning

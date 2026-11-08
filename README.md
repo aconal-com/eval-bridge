@@ -472,6 +472,16 @@ A composite GitHub Action at `.github/actions/eval-bridge-pr-comment/` runs afte
 
 The action also surfaces baseline-diff events (regressions, silent regressions) directly in the PR comment.
 
+The job's `GITHUB_TOKEN` needs `pull-requests: write` for the comment to post — with the default read-only token, `gh pr comment` fails with `GraphQL: Resource not accessible by integration`:
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: write
+```
+
+Note: PRs from forks always run with a read-only token that a `permissions` block cannot elevate, so on fork PRs the comment step warns and skips instead of failing the job. Posting is best-effort by design.
+
 ---
 
 ## Programmatic SDK
