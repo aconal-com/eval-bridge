@@ -8,9 +8,10 @@ fi
 
 # Parse JUnit XML to extract summary stats. Use python for portability.
 read TESTS FAILURES ERRORS SKIPPED TIME <<<"$(python3 - <<'PY'
-import xml.etree.ElementTree as sys
+import sys
+import xml.etree.ElementTree as ET
 import os
-tree = sys.parse(os.environ["JUNIT_PATH"])
+tree = ET.parse(os.environ["JUNIT_PATH"])
 root = tree.getroot()
 # Support both <testsuite> as root and <testsuites>
 if root.tag != "testsuite":

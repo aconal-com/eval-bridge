@@ -33,10 +33,10 @@ jobs:
           pytest --cov=eval_bridge --cov-report=term-missing --junitxml=junit-${{ matrix.python-version }}.xml
 
       - name: Post PR comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && matrix.python-version == '3.12'
         uses: ./.github/actions/eval-bridge-pr-comment
         with:
-          junit-path: junit.xml
+          junit-path: junit-${{ matrix.python-version }}.xml
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish test results
