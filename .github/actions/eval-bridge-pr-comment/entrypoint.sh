@@ -44,4 +44,20 @@ if [[ -n "${BASELINE_DIFF_PATH}" ]] && [[ -f "${BASELINE_DIFF_PATH}" ]]; then
   fi
 fi
 
-gh pr comment --body "${BODY}"
+gh_post_comment() {
+  # gh infers the PR from the git branch, but PR checkouts run on a detached
+  # HEAD ("not on any branch"), which makes plain `gh pr comment` fail.
+  # Read the PR number from the event payload instead.
+  local repo="${GITHUB_REPOSITORY:-}"
+  local pr="${PR_NUMBER:-}"
+  if [[ -z "${pr}" && -n "${GITHUB_EVENT_PATH:-}" && -f "${GITHUB_EVENT_PATH}" ]]; then
+    pr=$(python3 -c 'import json, os; e = json.load(open(os.environ["GITHUB_EVENT_PATH"])); print((e.get("pull_request") or e.get("issue") or {}).get("number", ""))')
+  fi
+  if [[ -n "${pr}" && -n "${repo}" ]]; then
+    gh pr comment "${pr}" --repo "${repo}" --body "${BODY}"
+  else
+    gh pr comment --body "${BODY}"
+  fi
+}
+
+gh_post_comment

@@ -15,7 +15,10 @@
   artifact away before `dorny/test-reporter` could read it (this is the first
   PR the repo has had, so the PR-only path had never run) — the redundant
   checkout and `pip install -e .` are gone, which also makes the action usable
-  in non-Python repos.
+  in non-Python repos. Finally, `gh pr comment` inferred the PR from the git
+  branch and failed on the detached HEAD of a PR checkout ("could not
+  determine current branch"); the entrypoint now reads the PR number from the
+  event payload.
 - Fix `entrypoint.sh` fallback branch: `xml.etree.ElementTree` was imported as
   `sys`, so the "no suites found" path raised `AttributeError` on `sys.exit`.
 - Drop `temperature: 0.0` from the LLM-judge request body. Current reasoning
